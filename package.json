@@ -4,7 +4,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "node scripts/build.js "
+    "build": "node scripts/build.js",
+    "dev": "node scripts/dev.js "
   },
   "name": "mini-vue3",
   "version": "1.0.0",
