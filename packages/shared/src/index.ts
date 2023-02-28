@@ -1,3 +1,5 @@
-let b = 1;
+// 公共方法
 
-export { b };
+export const isObject = val => typeof val == 'object' && val !== null;
+
+export const extend = Object.assign;
