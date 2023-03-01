@@ -1,11 +1,14 @@
 import { isObject } from '@vue/shared';
 import { readonly, reative } from './reactiveApi';
+import { TrackOptypes } from './optionations';
+import { Track } from './effect';
 
 function createGetter(isReadOnly = false, shallow = false) {
   return function get(target, key, receiver) {
     const res = Reflect.get(target, key, receiver);
     if (!isReadOnly) {
       //收集依赖
+      Track(target, TrackOptypes.GET, key);
     }
     if (shallow) {
       // 浅层代理，只对第一层进行代理
