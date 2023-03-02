@@ -14,24 +14,12 @@
       let { effect, reative } = VueReactivtiy;
       //副作用
       let state = reative({ name: '张三', age: 10, a: 600 });
-      console.log(effect);
-
       effect(() => {
-        //1默认执行一次进行取值操作, 只要取值就会调用get 方法，
-        // 我们可以将对应的effect函数存放起来
-        app.innerHTML = state.name;
+        state.name;
       });
-      //   effect(()=>{ //1默认执行一次进行取值操作, 只要取值就会调用get 方法，
-      //     // 我们可以将对应的effect函数存放起来
-      //     app.innerHTML =  state.name
-      //   })
       setTimeout(() => {
-        //updata
-        //  state.xx = 1000
-        //     state.age = 20 // 可以重新执行对应的effect方法
+        state.name = 'lisu'; // 触发set，执行对应effect
       }, 1000);
-
-      //总结一下： 收集依赖  就是我们只要使用响应式的数据，添加一个effect ,再修改的时候我们就可以相对应执行这个effect函数
     </script>
   </body>
 </html>
