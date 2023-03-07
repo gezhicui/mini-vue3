@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="../packages/reactivity/dist/reactivity.global.js"></script>
+    <div id="app"></div>
+    <script>
+      const { reative, effect, ref } = VueReactivtiy;
+      let name = ref('张三');
+      console.log(name);
+
+      effect(() => {
+        app.innerHTML = name.value;
+      });
+      setTimeout(() => {
+        name.value = 5555;
+      }, 1000);
+    </script>
+  </body>
+</html>
