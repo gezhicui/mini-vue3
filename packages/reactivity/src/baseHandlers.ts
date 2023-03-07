@@ -1,14 +1,14 @@
 import { isObject, isArray, isIntegerKey, hasOwn } from '@vue/shared';
 import { readonly, reative } from './reactiveApi';
-import { TrackOptypes } from './optionations';
-import { Track } from './effect';
+import { TrackOpTypes, TriggerOpTypes, haseChange } from './operations';
+import { Track, trigger } from './effect';
 
 function createGetter(isReadOnly = false, shallow = false) {
   return function get(target, key, receiver) {
     const res = Reflect.get(target, key, receiver);
     if (!isReadOnly) {
       //收集依赖
-      Track(target, TrackOptypes.GET, key);
+      Track(target, TrackOpTypes.GET, key);
     }
     if (shallow) {
       // 浅层代理，只对第一层进行代理
@@ -26,19 +26,21 @@ function createGetter(isReadOnly = false, shallow = false) {
 function createSetter(shallow = false) {
   //拦截设置的功能
   return function set(target, key, value, receiver) {
-    const result = Reflect.set(target, key, value, receiver);
     // 获取老值
     const oldValue = target[key];
+    const result = Reflect.set(target, key, value, receiver);
+
     // 判断target(数组或对象)中是否有key这个属性
     let haskey =
       isArray(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn(target, key);
 
     if (!haskey) {
-      //没有
-      //新增
+      // 没有的话去新增
+      trigger(target, TriggerOpTypes.ADD, key, value);
     } else {
-      //修改的时候 新值和原来的值一样
-      //    trigger(target,)
+      if (!haseChange(value, oldValue)) {
+        trigger(target, TriggerOpTypes.SET, key, value, oldValue);
+      }
     }
 
     return result;
