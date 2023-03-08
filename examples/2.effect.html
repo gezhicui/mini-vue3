@@ -14,12 +14,12 @@
       let obj = { name: '张三', age: { n: 11 }, a: 55, list: ['11', '22', '333', '44'] };
       const state = reative(obj);
       effect(() => {
-        app.innerHTML = state.name + '=====' + state.list[3]; //收集的 effect数组   length to
+        app.innerHTML = state.name + '=====' + state.list[3];
       });
 
       setTimeout(() => {
-        state.name = '555'; //触发set  执行对应的effect    处理  新增  还修改
-        state.list.length = 1; //[1,2]
+        state.name = '555';
+        state.list.length = 1;
       }, 2000);
     </script>
   </body>

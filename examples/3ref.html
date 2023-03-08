@@ -12,8 +12,6 @@
     <script>
       const { reative, effect, ref } = VueReactivtiy;
       let name = ref('张三');
-      console.log(name);
-
       effect(() => {
         app.innerHTML = name.value;
       });

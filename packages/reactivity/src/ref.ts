@@ -1,5 +1,5 @@
 //使用  toRefs
-import { Track, trigger } from './effect';
+import { track, trigger } from './effect';
 import { TrackOpTypes, TriggerOpTypes, haseChange } from './operations';
 export function ref(target) {
   return createRef(target);
@@ -25,7 +25,7 @@ class RefImpl {
   //类的属性访问器   问题实现响应式   收集依赖Track  触 发更新  trigger
   get value() {
     //获取  name.value
-    Track(this, TrackOpTypes.GET, 'value'); //收集依赖
+    track(this, TrackOpTypes.GET, 'value'); //收集依赖
     return this._value;
   }
   set value(newValue) {

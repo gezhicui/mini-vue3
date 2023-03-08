@@ -1,4 +1,5 @@
 import { isObject } from '@vue/shared';
+
 import {
   reativeHandlers,
   shallowReativeHandlers,
@@ -24,11 +25,12 @@ export function shallowReadonly(target) {
 // 实现代理的核心
 const reativeMap = new WeakMap();
 const readonlyMap = new WeakMap();
+
+// 创建各种方法的代理
 function createReactObj(target, isReadOnly, baseHandlers) {
   if (!isObject(target)) {
     return target;
   }
-
   const proxyMap = isReadOnly ? readonlyMap : reativeMap;
   //判断缓存中是否有这个对象
   const exisitProxy = proxyMap.get(target);

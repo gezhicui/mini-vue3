@@ -14,7 +14,6 @@ const packageDir = path.resolve(packagesDir, process.env.TARGET);
 const resolve = p => path.resolve(packageDir, p);
 const pkg = require(resolve(`package.json`)); //获取 json
 const name = path.basename(packageDir);
-console.log(name, 6666); //注意
 
 //3创建一个 表
 const outputOpions = {
