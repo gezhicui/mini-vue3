@@ -1,5 +1,9 @@
 import { track, trigger } from './effect';
+import { reative } from './index';
 import { TrackOpTypes, TriggerOpTypes, haseChange } from './operations';
+import { isObject, isArray } from '@vue/shared';
+
+const convert = val => (isObject(val) ? reative(val) : val);
 
 // 创建类 实现ref
 class RefImpl {
@@ -8,7 +12,7 @@ class RefImpl {
   // 存值
   public _value;
   constructor(public rawValue, public shallow) {
-    this._value = rawValue;
+    this._value = shallow ? rawValue : convert(rawValue);
   }
 
   //类的属性访问器  实现依赖收集和触发更新
@@ -50,7 +54,18 @@ class ObjectRefImpl {
     this.target[this.key] = newValue;
   }
 }
-// 实现toRef
+
 export function toRef(target, key) {
   return new ObjectRefImpl(target, key);
+}
+
+//实现toRefs
+export function toRefs(target) {
+  //[1,2,3]
+  //遍历
+  let ret = isArray(target) ? new Array(target.length) : {};
+  for (let key in target) {
+    ret[key] = toRef(target, key); // toRef 实例
+  }
+  return ret;
 }
