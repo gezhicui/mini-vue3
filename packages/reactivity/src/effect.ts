@@ -5,7 +5,7 @@ import { TriggerOpTypes } from './operations';
 export function effect(fn, options: any = {}) {
   // 创建effect，每次使用effect的时候都会创建一个新的函数，这个函数就是收集的依赖
   const effect = createReactiveEffect(fn, options);
-  //响应式的effect默认会先执行一次
+  // 响应式的effect默认会先执行一次
   if (!options.lazy) {
     effect();
   }
@@ -31,13 +31,14 @@ function createReactiveEffect(fn, options) {
       try {
         effectStack.push(effect);
         activeEffect = effect;
+        // console.log('reactiveEffect执行', effect.id);
         /* 
         执行用户传入effect的方法，
         步骤1、在effect方法中，读取proxy代理后的数据会触发get方法
         步骤2、get方法会触发依赖收集track
         步骤3、track中获取到刚刚赋值的activeEffect，加入该数据的依赖数组中，等待set的时候拿出来再次调用这个effect，即触发依赖
          */
-        fn();
+        return fn(); // 这里的fn执行结果return出去，是为了让computed能够得到执行结果，把结果缓存起来
       } finally {
         // 函数运行完 effect出栈，activeEffect回退
         effectStack.pop();
@@ -45,6 +46,7 @@ function createReactiveEffect(fn, options) {
       }
     }
   };
+  //console.log('构造effect');
   effect.id = uid++; //添加标识，用于区分effect(是谁的)
   effect._isEffect = true; // 这个标识用于区分他是响应式effect
   effect.raw = fn; //保存用户的原函数
@@ -66,6 +68,8 @@ let targetMap = new WeakMap();
 
 // 收集依赖
 export function track(target, type, key) {
+  console.log('收集依赖', activeEffect.id);
+
   // 当前执行环境没有在effect中，直接中断
   if (!activeEffect) return;
 
@@ -124,5 +128,13 @@ export function trigger(target, type, key?, newValue?, oldValue?) {
     }
   }
   // 执行所有依赖
-  effectSet.forEach((effect: any) => effect());
+  effectSet.forEach((effect: any) => {
+    // 服务watch属性
+    if (effect.options.sch) {
+      // 值改变的时候 让对应的computed缓存失效
+      effect.options.sch(effect);
+    } else {
+      effect();
+    }
+  });
 }
