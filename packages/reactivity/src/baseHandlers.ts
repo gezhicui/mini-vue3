@@ -7,14 +7,14 @@ function createGetter(isReadOnly = false, shallow = false) {
   return function get(target, key, receiver) {
     const res = Reflect.get(target, key, receiver);
     if (!isReadOnly) {
-      //收集依赖
+      // 收集依赖
       track(target, TrackOpTypes.GET, key);
     }
     // 浅层代理，只对第一层进行代理
     if (shallow) {
       return res;
     }
-    //深层递归代理。 这里是懒代理，如果没有访问深层对象就不进行代理，访问到了再进行代理，是vue的性能优化
+    // 深层递归代理。 这里是懒代理，如果没有访问深层对象就不进行代理，访问到了再进行代理，是vue的性能优化
     if (isObject(res)) {
       return isReadOnly ? readonly(res) : reative(res);
     }
@@ -28,7 +28,6 @@ function createSetter(shallow = false) {
     // 获取老值
     const oldValue = target[key];
     const result = Reflect.set(target, key, value, receiver);
-
     // haskey：target(数组或对象)中是否有key这个属性
     let haskey =
       isArray(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn(target, key);
@@ -41,7 +40,6 @@ function createSetter(shallow = false) {
         trigger(target, TriggerOpTypes.SET, key, value, oldValue);
       }
     }
-
     return result;
   };
 }

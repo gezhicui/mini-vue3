@@ -1,7 +1,10 @@
 import { isArray, isIntegerKey } from '@vue/shared';
 import { TriggerOpTypes } from './operations';
 
-// 定义effect
+/* 
+  定义effect 
+  effect最主要的作用是获取当前执行的上下文，为依赖收集做准备，手机的依赖即为依赖所在的上下文
+*/
 export function effect(fn, options: any = {}) {
   // 创建effect，每次使用effect的时候都会创建一个新的函数，这个函数就是收集的依赖
   const effect = createReactiveEffect(fn, options);
@@ -13,17 +16,17 @@ export function effect(fn, options: any = {}) {
 }
 
 let uid = 0;
-//存放当前正在执行的effect
+// 存放当前正在执行的effect
 let activeEffect;
 /* 创建一个栈来保存当前的effect， 通过栈解决以下问题
- effect(() => { [effect1]<-cur  effect入栈
+  effect(() => { [effect1]<-cur  effect入栈
     state.name;
     effect(() => { [effect1,effect2]<-cur effect入栈
       stage.age;
     }); // effect2执行完毕，出栈 [effect1]<-cur 
     state.a; [effect1]<-cur
   }); 
-  */
+*/
 const effectStack = [];
 function createReactiveEffect(fn, options) {
   const effect = function reactiveEffect() {
@@ -33,10 +36,10 @@ function createReactiveEffect(fn, options) {
         activeEffect = effect;
         // console.log('reactiveEffect执行', effect.id);
         /* 
-        执行用户传入effect的方法，
-        步骤1、在effect方法中，读取proxy代理后的数据会触发get方法
-        步骤2、get方法会触发依赖收集track
-        步骤3、track中获取到刚刚赋值的activeEffect，加入该数据的依赖数组中，等待set的时候拿出来再次调用这个effect，即触发依赖
+          执行用户传入effect的方法，
+          步骤1、在effect方法中，读取proxy代理后的数据会触发get方法
+          步骤2、get方法会触发依赖收集track
+          步骤3、track中获取到刚刚赋值的activeEffect，加入该数据的依赖数组中，等待set的时候拿出来再次调用这个effect，即触发依赖
          */
         return fn(); // 这里的fn执行结果return出去，是为了让computed能够得到执行结果，把结果缓存起来
       } finally {
@@ -68,8 +71,6 @@ let targetMap = new WeakMap();
 
 // 收集依赖
 export function track(target, type, key) {
-  console.log('收集依赖', activeEffect.id);
-
   // 当前执行环境没有在effect中，直接中断
   if (!activeEffect) return;
 

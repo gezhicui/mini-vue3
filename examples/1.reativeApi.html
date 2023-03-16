@@ -12,8 +12,10 @@
     <script>
       const { reative, shallowReative, readonly, shallowReadonly } = VueReactivtiy;
       let obj = { name: '张三', age: { n: 11 } };
-      const state = reative(obj);
-      state.name = '李四';
+      const state = shallowReative(obj);
+      state.age.n = '18';
+      console.log(obj);
+      console.log(state);
     </script>
   </body>
 </html>

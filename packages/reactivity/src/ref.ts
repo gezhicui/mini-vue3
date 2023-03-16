@@ -12,11 +12,13 @@ class RefImpl {
   // 存值
   public _value;
   constructor(public rawValue, public shallow) {
+    // 简单数据直接存储 复杂数据使用proxy代理
     this._value = shallow ? rawValue : convert(rawValue);
   }
 
-  //类的属性访问器  实现依赖收集和触发更新
+  // 类的属性访问器  实现依赖收集和触发更新
   get value() {
+    // this即为创建出来的代理对象
     track(this, TrackOpTypes.GET, 'value'); //收集依赖
     return this._value;
   }

@@ -6,13 +6,13 @@ export function computed(getterOrOptons) {
   let getter; //获取数据
   let setter; //设置数据
   if (isFuction(getterOrOptons)) {
-    //函数  getter
+    // 函数 computed(()=>{})
     getter = getterOrOptons;
     setter = () => {
       console.warn('computed value must be readonly');
     };
   } else {
-    //对象 { get(),set()}
+    // 对象 computed({get:()=>{},set:()=>{}})
     getter = getterOrOptons.get;
     setter = getterOrOptons.set;
   }
@@ -21,7 +21,7 @@ export function computed(getterOrOptons) {
 }
 
 class ComputedRefImpl {
-  // 是否使用缓存的标识
+  // 是否使用缓存的标识,true则重新加载数据,false使用缓存
   public _dirty = true;
   public _value;
   public effect;
@@ -43,7 +43,6 @@ class ComputedRefImpl {
   get value() {
     // 默认进行获取数据的时候才执行
     //console.log('执行computed get');
-
     if (this._dirty) {
       // 获取computed最新结果
       this._value = this.effect();
