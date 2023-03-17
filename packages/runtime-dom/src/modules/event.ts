@@ -1,12 +1,8 @@
-//事件
-//div  @cilck='fn'   div @cilck="fn1"
-//一个元素的 绑定事件   addEventListener
-//缓存 {click:fn1}  =>
-
+// 事件 如@cilck='fn'
 export const patchEvent = (el, key, value) => {
-  // 1对函数缓存
+  // 使用el._vei对函数进行缓存
   const invokers = el._vei || (el._vei = {});
-  const exists = invokers[key]; //
+  const exists = invokers[key];
   if (exists && value) {
     exists.value = value;
   } else {

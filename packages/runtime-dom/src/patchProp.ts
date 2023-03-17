@@ -20,7 +20,7 @@ export const patchProps = (el, key, prevValue, nextValue) => {
       break;
     default:
       if (/^on[^a-z]/.test(key)) {
-        // 事件处理 e.g. onClick
+        // 事件处理 e.g. @click
         patchEvent(el, key, nextValue);
       } else {
         patchAttr(el, key, nextValue);
