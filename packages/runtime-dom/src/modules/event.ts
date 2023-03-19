@@ -1,21 +1,28 @@
-// 事件 如@cilck='fn'
+/**
+ * 事件改变 如@cilck='fn'  变为@cilck='fn1'
+ * @param el 节点
+ * @param key 事件名称  如onClick
+ * @param value 绑定的事件函数
+ */
 export const patchEvent = (el, key, value) => {
   // 使用el._vei对函数进行缓存
   const invokers = el._vei || (el._vei = {});
   const exists = invokers[key];
+  // 如果已经绑定了事件切事件发生了改变
   if (exists && value) {
     exists.value = value;
   } else {
-    //获取事件名称  (1)新的有  （2）新的没有
+    //获取事件名称
     const eventName = key.slice(2).toLowerCase();
+
     if (value) {
-      //新的有
+      // 有新的事件 创建方法
       let invoker = (invokers[eventName] = createInvoker(value));
       el.addEventListener(eventName, invoker); //添加事件
     } else {
-      //没有   以前删除
+      // 没有新的事件   把以前绑定的删除
       el.removeEventLister(eventName, exists);
-      invokers[eventName] = undefined; //清楚缓存
+      invokers[eventName] = undefined; //清除缓存
     }
   }
 };
