@@ -1,7 +1,8 @@
 {
   "name": "myvue3",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "lib/guide-mini-vue.cjs.js",
+  "module": "lib/guide-mini-vue.esm.js",
   "repository": "https://github.com/gezhicui/mini-vue3.git",
   "author": "yang <1372201820@qq.com>",
   "license": "MIT",
@@ -9,14 +10,17 @@
     "@babel/core": "^7.21.3",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.21.0",
+    "@rollup/plugin-typescript": "^11.0.0",
     "@types/jest": "^29.5.0",
     "babel-jest": "^29.5.0",
     "jest": "^29.5.0",
+    "rollup": "^3.20.1",
+    "tslib": "^2.5.0",
     "typescript": "^5.0.2"
   },
   "scripts": {
     "dev": "rollup -c -w",
-    "build": "rollup -c",
+    "build": "rollup -c rollup.config.js",
     "test": "jest"
   }
 }
