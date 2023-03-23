@@ -1,12 +1,13 @@
 import { track, trigger } from './effect';
 import { reactive, ReactiveFlags, readonly } from './reactive';
-import { isObject } from '../shared';
+import { isObject, extend } from '../shared';
 
 const get = createGetter();
 const set = createSetter();
 const readonlyGet = createGetter(true);
+const shallowReadonlyGet = createGetter(true, true);
 
-function createGetter(isReadOnly = false) {
+function createGetter(isReadOnly = false, shadow = false) {
   return function get(target, key) {
     if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadOnly;
@@ -15,6 +16,11 @@ function createGetter(isReadOnly = false) {
     }
 
     const res = Reflect.get(target, key);
+
+    // 如果是readOnly 直接返回，不进行递归处理了
+    if (shadow) {
+      return res;
+    }
 
     // 看看 res 是否是对象，如果是对象，需要递归代理,需要区分普通代理和readonly
     if (isObject(res)) {
@@ -49,3 +55,6 @@ export const readonlyHandlers = {
     return true;
   },
 };
+export const shallowReadonlyHandler = extend({}, readonlyHandlers, {
+  get: shallowReadonlyGet,
+});
