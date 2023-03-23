@@ -8,7 +8,7 @@ describe('readonly', () => {
     expect(wrapped).not.toBe(original);
     expect(isReadOnly(wrapped)).toBe(true);
     expect(isReadOnly(original)).toBe(false);
-    // expect(isReadOnly(wrapped.bar)).toBe(true);
+    expect(isReadOnly(wrapped.bar)).toBe(true);
     // expect(isProxy(wrapped)).toBe(true);
     expect(wrapped.foo).toBe(1);
   });
