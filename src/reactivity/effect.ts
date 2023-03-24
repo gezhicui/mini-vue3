@@ -1,4 +1,4 @@
-import { extend } from '../shared';
+import { extend } from '../shared/index';
 
 // 当前正在执行的effect，需要被作为依赖收集起来
 let activeEffect;
@@ -61,18 +61,28 @@ export function track(target, key) {
     dep = new Set();
     despMap.set(key, dep);
   }
+  trackEffects(dep);
+}
 
+// 把ref或reactive的依赖收集起来
+export function trackEffects(dep) {
+  // 已经在 dep 中
   if (dep.has(activeEffect)) return;
   dep.add(activeEffect);
   activeEffect?.deps.push(dep);
 }
+
 export function isTracking() {
   return shouldTrack && activeEffect !== undefined;
 }
 
+// 触发ref或reactive的依赖
 export function trigger(target, key) {
   let depsMap = targetMap.get(target);
   let dep = depsMap.get(key);
+  triggerEffects(dep);
+}
+export function triggerEffects(dep) {
   for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler();
