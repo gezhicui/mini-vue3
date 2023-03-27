@@ -5,7 +5,7 @@ let activeEffect;
 // 是否应该要触发依赖
 let shouldTrack;
 
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any;
   deps = [];
   // onStop是用户传入的stop方法的回调函数
