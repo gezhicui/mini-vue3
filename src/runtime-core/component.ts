@@ -1,14 +1,15 @@
 export function createComponentInstance(vnode) {
   const component = {
     vnode,
+    type: vnode.type,
   };
   return component;
 }
 
 export function setupComponent(instance) {
-  // 1. initprops
-  // 2. initslots
-  // 3. initsetup
+  // 1. props
+  // 2. slots
+  // 3. setup
   setupStatefulComponent(instance);
   // 4. render
   // 5. effect

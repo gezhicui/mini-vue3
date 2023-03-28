@@ -1,8 +1,8 @@
 {
   "name": "myvue3",
   "version": "1.0.0",
-  "main": "lib/guide-mini-vue.cjs.js",
-  "module": "lib/guide-mini-vue.esm.js",
+  "main": "lib/mini-vue3.cjs.js",
+  "module": "lib/mini-vue3.esm.js",
   "repository": "https://github.com/gezhicui/mini-vue3.git",
   "author": "yang <1372201820@qq.com>",
   "license": "MIT",

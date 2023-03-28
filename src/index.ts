@@ -1,1 +1,2 @@
-export const exit = 'exit';
+// 整个库的出口
+export * from './runtime-core/index';
