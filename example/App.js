@@ -1,5 +1,5 @@
 import { h } from '../lib/mini-vue3.esm.js';
-
+window.self = null;
 export const App = {
   /* 
   <div id="root" class="red,hard">
@@ -8,19 +8,20 @@ export const App = {
   </div>
   */
   render() {
+    window.self = this;
     return h(
       'div',
       {
         id: 'root',
         class: ['red', 'hard'],
       },
-      [h('p', { class: 'red' }, 'hi'), h('p', { class: 'blue' }, 'mini-vue')]
+      [h('p', { class: 'red' }, this.msg), h('p', { class: 'blue' }, 'mini-vue')]
     );
   },
 
   setup() {
     return {
-      msg: 'mini-vue',
+      msg: 'asdasdasdas',
     };
   },
 };
