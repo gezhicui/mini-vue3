@@ -14,6 +14,9 @@ export const App = {
       {
         id: 'root',
         class: ['red', 'hard'],
+        onClick() {
+          console.log('click');
+        },
       },
       [h('p', { class: 'red' }, this.msg), h('p', { class: 'blue' }, 'mini-vue')]
     );

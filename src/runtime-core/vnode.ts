@@ -16,7 +16,6 @@ export function createVNode(type, props?, children?) {
   }
 
   return vnode;
-  return vnode;
 }
 
 function getShapeFlag(type) {
