@@ -15,6 +15,12 @@ export function createVNode(type, props?, children?) {
     vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.ARRAY_CHILDREN;
   }
 
+  // 组的children是个object，则可以判断是slot
+  if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+    if (typeof children === 'object') {
+      vnode.shapeFlag = vnode.shapeFlag | ShapeFlags.SLOTS_CHILDREN;
+    }
+  }
   return vnode;
 }
 

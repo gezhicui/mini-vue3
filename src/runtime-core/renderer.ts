@@ -26,7 +26,7 @@ function processComponent(vnode: any, container: any) {
 function mountComponent(initialVnode: any, container: any) {
   // instance的type属性存放组件的render和setup方法
   const instance = createComponentInstance(initialVnode);
-  // 执行组件的setup,把结果挂载到instance.setupState属性上
+  // 执行组件的setup,把return的对象挂载到instance.setupState属性上
   setupComponent(instance);
   // 开始执行组件的render方法,把组件构造成vnode
   setupRenderEffect(instance, initialVnode, container);
@@ -73,7 +73,7 @@ function setupRenderEffect(instance: any, initialVnode, container: any) {
   const { proxy } = instance;
   // render中可以使用tis.xxx
   const subTree = instance.render.call(proxy);
-  console.log(subTree);
+  // console.log(subTree);
   // 组件处理成vnode了，重新返回去执行patch
   patch(subTree, container);
 
