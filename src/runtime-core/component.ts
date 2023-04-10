@@ -42,9 +42,13 @@ function setupStatefulComponent(instance) {
   const { setup } = Component;
   // 执行组件的setup方法，传入相应参数
   if (setup) {
+    // 把全局的currentInstance指向现在正在执行setup的组件实例
+    setCurrentInstance(instance);
     const setupResult = setup(shallowReadonly(instance.props), {
       emit: instance.emit,
     });
+    //执行完setup，清空currentInstance
+    setCurrentInstance(null);
     handleSetupResult(instance, setupResult);
   }
 }
@@ -60,4 +64,14 @@ function handleSetupResult(instance, setupResult) {
 function finishComponentSetup(instance) {
   const Component = instance.type;
   instance.render = Component.render;
+}
+
+let currentInstance = null;
+
+export function getCurrentInstance() {
+  return currentInstance;
+}
+
+function setCurrentInstance(instance) {
+  currentInstance = instance;
 }
