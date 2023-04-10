@@ -4,13 +4,16 @@ import { initProps } from './componentProps';
 import { initSlots } from './componentSlots';
 import { publicInstanceProxyHandlers } from './componentPublicInstance';
 
-export function createComponentInstance(vnode) {
+export function createComponentInstance(vnode, parent) {
+  console.log('createComponentInstance', parent);
   const component = {
     vnode,
     type: vnode.type,
     setupState: {},
     props: {},
     slots: {},
+    provides: parent ? parent.provides : {},
+    parent,
     emit: () => {},
   };
   // bind方法第一个传null得话不改变this指向,而且可以在后续的调用中去传入参数
