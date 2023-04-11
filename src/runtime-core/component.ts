@@ -5,7 +5,6 @@ import { initSlots } from './componentSlots';
 import { publicInstanceProxyHandlers } from './componentPublicInstance';
 
 export function createComponentInstance(vnode, parent) {
-  console.log('createComponentInstance', parent);
   const component = {
     vnode,
     type: vnode.type,
