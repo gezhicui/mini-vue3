@@ -3,6 +3,7 @@ import { emit } from './componentEmit';
 import { initProps } from './componentProps';
 import { initSlots } from './componentSlots';
 import { publicInstanceProxyHandlers } from './componentPublicInstance';
+import { proxyRefs } from '../reactivity';
 
 export function createComponentInstance(vnode, parent) {
   const component = {
@@ -13,6 +14,8 @@ export function createComponentInstance(vnode, parent) {
     slots: {},
     provides: parent ? parent.provides : {},
     parent,
+    isMounted: false,
+    subTree: {},
     emit: () => {},
   };
   // bind方法第一个传null得话不改变this指向,而且可以在后续的调用中去传入参数
@@ -57,7 +60,7 @@ function setupStatefulComponent(instance) {
 
 function handleSetupResult(instance, setupResult) {
   if (typeof setupResult === 'object') {
-    instance.setupState = setupResult;
+    instance.setupState = proxyRefs(setupResult);
   }
 
   finishComponentSetup(instance);
