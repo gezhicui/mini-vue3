@@ -6,6 +6,9 @@ export const isObject = val => {
   return val !== null && typeof val === 'object';
 };
 
+// 空对象 统一对象内存地址
+export const EMPTY_OBJ = {};
+
 // 判断是否改变
 export const hasChanged = (val, newValue) => {
   return !Object.is(val, newValue);
