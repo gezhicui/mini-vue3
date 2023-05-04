@@ -18,23 +18,32 @@ export function createRenderer(options) {
     patch(null, vnode, container, null);
   }
 
-  // n1是上一个虚拟节点，n2是现在的虚拟节点
+  /**
+   * @param n1 上一个虚拟节点
+   * @param n2 现在的虚拟节点
+   * @param container 父容器真实dom，用来挂载当前处理完的真实dom
+   * @param parentComponent 父组件，用来传递provide数据
+   */
   function patch(n1, n2, container, parentComponent) {
     // 判断当前传进来的节点是组件还是Vnode,组件的type是组件对象,需处理成Vnode后再回到patch处理
     const { type, shapeFlag } = n2;
 
     // Fragment -> 只渲染children
     switch (type) {
+      // 空白占位节点
       case Fragment:
         processFragment(n1, n2, container, parentComponent);
         break;
+      // 文本节点
       case Text:
         processText(n1, n2, container);
         break;
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) {
+          // dom元素节点
           processElement(n1, n2, container, parentComponent);
         } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+          // 组件节点
           processComponent(n1, n2, container, parentComponent);
         }
         break;
