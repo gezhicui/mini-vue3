@@ -191,6 +191,53 @@ export function createRenderer(options) {
         hostRemove(c1[i].el);
         i++;
       }
+    } else {
+      // 中间对比
+      let s1 = i;
+      let s2 = i;
+
+      const toBePatched = e2 - s2 + 1;
+      let patched = 0;
+      const keyToNewIndexMap = new Map();
+
+      // 新节点的key和索引存在map中
+      for (let i = s2; i <= e2; i++) {
+        const nextChild = c2[i];
+        keyToNewIndexMap.set(nextChild.key, i);
+      }
+
+      // 循环遍历老结点数组
+      for (let i = s1; i <= e1; i++) {
+        const prevChild = c1[i];
+        // 如果新节点遍历完毕后发现老结点还存在没有遍历到的部分，直接删除
+        if (patched >= toBePatched) {
+          hostRemove(prevChild.el);
+          continue;
+        }
+        // newIndex存放老节点在新结点中的索引
+        let newIndex;
+        // 如果老节点存在key，且在新节点的map中找到老节点，则保存该结点在新数组中的索引
+        if (prevChild.key !== null) {
+          newIndex = keyToNewIndexMap.get(prevChild.key);
+        } else {
+          // 顺序查找，在新节点数组中找到当前的老结点，则保存该结点在新数组中的索引
+          for (let j = s2; j <= e2; j++) {
+            if (isSomeVnodeType(prevChild, c2[j])) {
+              newIndex = j;
+              break;
+            }
+          }
+        }
+
+        // 新节点中不存在当前的老结点，则删除
+        if (newIndex === undefined) {
+          hostRemove(prevChild.el);
+        } else {
+          // 新节点中存在当前的老结点，则patch
+          patch(prevChild, c2[newIndex], container, parentComponent, null);
+          patched++;
+        }
+      }
     }
   }
 
