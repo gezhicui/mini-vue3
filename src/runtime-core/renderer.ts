@@ -15,7 +15,7 @@ export function createRenderer(options) {
   } = options;
 
   function render(vnode, container) {
-    patch(null, vnode, container, null);
+    patch(null, vnode, container, null, null);
   }
 
   /**
@@ -23,8 +23,9 @@ export function createRenderer(options) {
    * @param n2 现在的虚拟节点
    * @param container 父容器真实dom，用来挂载当前处理完的真实dom
    * @param parentComponent 父组件，用来传递provide数据
+   * @param anchor dom diff 使用的锚点，用来处理虚拟节点的挂载位置
    */
-  function patch(n1, n2, container, parentComponent) {
+  function patch(n1, n2, container, parentComponent, anchor) {
     // 判断当前传进来的节点是组件还是Vnode,组件的type是组件对象,需处理成Vnode后再回到patch处理
     const { type, shapeFlag } = n2;
 
@@ -32,7 +33,7 @@ export function createRenderer(options) {
     switch (type) {
       // 空白占位节点
       case Fragment:
-        processFragment(n1, n2, container, parentComponent);
+        processFragment(n1, n2, container, parentComponent, anchor);
         break;
       // 文本节点
       case Text:
@@ -41,41 +42,39 @@ export function createRenderer(options) {
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) {
           // dom元素节点
-          processElement(n1, n2, container, parentComponent);
+          processElement(n1, n2, container, parentComponent, anchor);
         } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
           // 组件节点
-          processComponent(n1, n2, container, parentComponent);
+          processComponent(n1, n2, container, parentComponent, anchor);
         }
         break;
     }
   }
 
-  function processFragment(n1, n2: any, container: any, parentComponent) {
-    mountChildren(n2.children, container, parentComponent);
+  function processFragment(n1, n2: any, container: any, parentComponent, anchor) {
+    mountChildren(n2.children, container, parentComponent, anchor);
   }
-
   function processText(n1, n2: any, container: any) {
     const { children } = n2;
     const textNode = (n2.el = document.createTextNode(children));
     container.append(textNode);
   }
 
-  function processElement(n1, n2, container, parentComponent) {
+  function processElement(n1, n2, container, parentComponent, anchor) {
+    console.log('processElement');
     if (!n1) {
-      mountElement(n2, container, parentComponent);
-      console.log('processElement  mount');
+      mountElement(n2, container, parentComponent, anchor);
     } else {
       // update
-      patchElement(n1, n2, container, parentComponent);
-      console.log('processElement  update');
+      patchElement(n1, n2, container, parentComponent, anchor);
     }
   }
 
-  function processComponent(n1, n2: any, container: any, parentComponent) {
-    mountComponent(n2, container, parentComponent);
+  function processComponent(n1, n2: any, container: any, parentComponent, anchor) {
+    mountComponent(n2, container, parentComponent, anchor);
   }
 
-  function patchElement(n1, n2, container, parentComponent) {
+  function patchElement(n1, n2, container, parentComponent, anchor) {
     console.log('patchElement');
     console.log('n1', n1);
     console.log('n2', n2);
@@ -84,10 +83,9 @@ export function createRenderer(options) {
     const newProps = n2.props || EMPTY_OBJ;
 
     const el = (n2.el = n1.el);
-    // props改变处理
-    patchProps(el, oldProps, newProps);
     // children
-    patchChildren(n1, n2, el, parentComponent);
+    patchChildren(n1, n2, el, parentComponent, anchor);
+    patchProps(el, oldProps, newProps);
   }
 
   function patchProps(el, oldProps, newProps) {
@@ -110,7 +108,7 @@ export function createRenderer(options) {
     }
   }
 
-  function patchChildren(n1, n2, container, parentComponent) {
+  function patchChildren(n1, n2, container, parentComponent, anchor) {
     const prevShapeFlag = n1.shapeFlag;
     const shapeFlag = n2.shapeFlag;
     const c1 = n1.children;
@@ -129,7 +127,69 @@ export function createRenderer(options) {
       // 新clildren的是个数组
       if (prevShapeFlag & ShapeFlags.TEXT_CHILDREN) {
         hostSetElementText(container, '');
-        mountChildren(c2, container, parentComponent);
+        mountChildren(c2, container, parentComponent, anchor);
+      } else {
+        // 旧的子节点是数组，新的子节点也是数组，进行diff
+        patchKeyedChildren(c1, c2, container, parentComponent, anchor);
+      }
+    }
+  }
+
+  // diff 算法
+  function patchKeyedChildren(c1, c2, container, parentComponent, parentAnchor) {
+    const l2 = c2.length;
+    let i = 0;
+    let e1 = c1.length - 1;
+    let e2 = l2 - 1;
+
+    function isSomeVnodeType(n1, n2) {
+      // type
+      // key
+      return n1.type === n2.type && n1.key === n2.key;
+    }
+
+    // 左侧
+    while (i <= e1 && i <= e2) {
+      const n1 = c1[i];
+      const n2 = c2[i];
+
+      if (isSomeVnodeType(n1, n2)) {
+        patch(n1, n2, container, parentComponent, parentAnchor);
+      } else {
+        break;
+      }
+
+      i++;
+    }
+
+    while (i <= e1 && i <= e2) {
+      const n1 = c1[e1];
+      const n2 = c2[e2];
+
+      if (isSomeVnodeType(n1, n2)) {
+        patch(n1, n2, container, parentComponent, parentAnchor);
+      } else {
+        break;
+      }
+
+      e1--;
+      e2--;
+    }
+
+    // 3. 新的比老得多 创建
+    if (i > e1) {
+      if (i <= e2) {
+        const nextPos = e2 + 1;
+        const anchor = nextPos < l2 ? c2[nextPos].el : null;
+        while (i <= e2) {
+          patch(null, c2[i], container, parentComponent, anchor);
+          i++;
+        }
+      }
+    } else if (i > e2) {
+      while (i <= e1) {
+        hostRemove(c1[i].el);
+        i++;
       }
     }
   }
@@ -142,16 +202,16 @@ export function createRenderer(options) {
     }
   }
 
-  function mountComponent(initialVnode: any, container: any, parentComponent) {
+  function mountComponent(initialVnode: any, container: any, parentComponent, anchor) {
     // instance的type属性存放组件的render和setup方法
     const instance = createComponentInstance(initialVnode, parentComponent);
     // 执行组件的setup,把return的对象挂载到instance.setupState属性上
     setupComponent(instance);
     // 开始执行组件的render方法,把组件构造成vnode
-    setupRenderEffect(instance, initialVnode, container);
+    setupRenderEffect(instance, initialVnode, container, anchor);
   }
 
-  function setupRenderEffect(instance: any, initialVnode, container: any) {
+  function setupRenderEffect(instance: any, initialVnode, container: any, anchor) {
     /*
     render() {
       return h(
@@ -196,7 +256,7 @@ export function createRenderer(options) {
         const subTree = (instance.subTree = instance.render.call(proxy));
         // console.log(subTree);
         // 组件处理成vnode了，重新返回去执行patch
-        patch(null, subTree, container, instance);
+        patch(null, subTree, container, instance, anchor);
 
         // 等组件处理完，就可以挂载el真实节点了
         initialVnode.el = subTree.el;
@@ -213,12 +273,12 @@ export function createRenderer(options) {
 
         console.log('subTree', subTree);
         console.log('prevSubTree', prevSubTree);
-        patch(prevSubTree, subTree, container, instance);
+        patch(prevSubTree, subTree, container, instance, anchor);
       }
     });
   }
 
-  function mountElement(vnode: any, container: any, parentComponent) {
+  function mountElement(vnode: any, container: any, parentComponent, anchor) {
     const el = (vnode.el = hostCreateElement(vnode.type));
     // 把el存到Vnode上
     vnode.el = el;
@@ -229,7 +289,7 @@ export function createRenderer(options) {
       el.textContent = children;
     } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
       // 子节点还是vnode则递归挂载子节点
-      mountChildren(children, el, parentComponent);
+      mountChildren(children, el, parentComponent, anchor);
     }
 
     // 处理props
@@ -245,11 +305,11 @@ export function createRenderer(options) {
       hostPatchProps(el, key, null, val);
     }
     // container.appendChild(el);
-    hostInsert(el, container);
+    hostInsert(el, container, anchor);
   }
-  function mountChildren(children, container, parentComponent) {
+  function mountChildren(children, container, parentComponent, anchor) {
     children.forEach(child => {
-      patch(null, child, container, parentComponent);
+      patch(null, child, container, parentComponent, anchor);
     });
   }
   return {

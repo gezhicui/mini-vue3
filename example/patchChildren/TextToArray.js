@@ -1,4 +1,4 @@
-import { ref, h } from '../../lib/guide-mini-vue.esm.js';
+import { ref, h } from '../../lib/mini-vue3.esm.js';
 const prevChildren = 'newChildren';
 const nextChildren = [h('div', {}, 'A'), h('div', {}, 'B')];
 

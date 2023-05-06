@@ -17,8 +17,10 @@ function patchProps(el, key, preVal, nextVal) {
   }
 }
 
-function insert(el, parent) {
-  parent.append(el);
+function insert(child, parent, anchor) {
+  // parent.append(child);
+  // insertBefore代替append，如果有第二个参数，则子节点添加在第二个参数的节点前面，否则和append一样添加在后面
+  parent.insertBefore(child, anchor || null);
 }
 
 function remove(child) {
