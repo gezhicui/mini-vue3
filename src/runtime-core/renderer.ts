@@ -2,6 +2,7 @@ import { effect } from '../reactivity/effect';
 import { EMPTY_OBJ } from '../shared/index';
 import { ShapeFlags } from '../shared/shapeFlags';
 import { createComponentInstance, setupComponent } from './component';
+import { queueJobs } from './scheduler';
 import { Fragment, Text } from './vnode';
 import { createAppAPI } from './createApp';
 import { shouldUpdateComponent } from './componentUpdateUtil';
@@ -389,41 +390,49 @@ export function createRenderer(options) {
       ],
     }
   */
-    instance.update = effect(() => {
-      if (!instance.isMounted) {
-        // instance.proxy存放了setup中return的对象数据
-        const { proxy } = instance;
-        // render中可以使用tis.xxx
-        const subTree = (instance.subTree = instance.render.call(proxy));
-        // console.log(subTree);
-        // 组件处理成vnode了，重新返回去执行patch
-        patch(null, subTree, container, instance, anchor);
+    instance.update = effect(
+      () => {
+        if (!instance.isMounted) {
+          // instance.proxy存放了setup中return的对象数据
+          const { proxy } = instance;
+          // render中可以使用tis.xxx
+          const subTree = (instance.subTree = instance.render.call(proxy));
+          // console.log(subTree);
+          // 组件处理成vnode了，重新返回去执行patch
+          patch(null, subTree, container, instance, anchor);
 
-        // 等组件处理完，就可以挂载el真实节点了
-        initialVnode.el = subTree.el;
-        // 把组件初始化标识打上，下次走更新逻辑
-        instance.isMounted = true;
-      } else {
-        // update
-        console.log('update');
-        // 需要一个 vnode
-        const { next, vnode } = instance;
-        if (next) {
-          next.el = vnode.el;
+          // 等组件处理完，就可以挂载el真实节点了
+          initialVnode.el = subTree.el;
+          // 把组件初始化标识打上，下次走更新逻辑
+          instance.isMounted = true;
+        } else {
+          // update
+          console.log('update');
+          // 需要一个 vnode
+          const { next, vnode } = instance;
+          if (next) {
+            next.el = vnode.el;
 
-          updateComponentPreRender(instance, next);
+            updateComponentPreRender(instance, next);
+          }
+          const { proxy } = instance;
+          const subTree = instance.render.call(proxy);
+          const prevSubTree = instance.subTree;
+
+          instance.subTree = subTree;
+
+          console.log('subTree', subTree);
+          console.log('prevSubTree', prevSubTree);
+          patch(prevSubTree, subTree, container, instance, anchor);
         }
-        const { proxy } = instance;
-        const subTree = instance.render.call(proxy);
-        const prevSubTree = instance.subTree;
-
-        instance.subTree = subTree;
-
-        console.log('subTree', subTree);
-        console.log('prevSubTree', prevSubTree);
-        patch(prevSubTree, subTree, container, instance, anchor);
+      },
+      {
+        scheduler() {
+          console.log('update - scheduler');
+          queueJobs(instance.update);
+        },
       }
-    });
+    );
   }
   function updateComponentPreRender(instance, nextVnode) {
     instance.vnode = nextVnode;
