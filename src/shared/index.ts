@@ -6,6 +6,9 @@ export const isObject = val => {
   return val !== null && typeof val === 'object';
 };
 
+// 判断是否是字符串
+export const isString = val => typeof val === 'string';
+
 // 空对象 统一对象内存地址
 export const EMPTY_OBJ = {};
 
