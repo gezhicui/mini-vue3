@@ -396,7 +396,7 @@ export function createRenderer(options) {
           // instance.proxy存放了setup中return的对象数据
           const { proxy } = instance;
           // render中可以使用tis.xxx
-          const subTree = (instance.subTree = instance.render.call(proxy));
+          const subTree = (instance.subTree = instance.render.call(proxy, proxy));
           // console.log(subTree);
           // 组件处理成vnode了，重新返回去执行patch
           patch(null, subTree, container, instance, anchor);
@@ -416,7 +416,7 @@ export function createRenderer(options) {
             updateComponentPreRender(instance, next);
           }
           const { proxy } = instance;
-          const subTree = instance.render.call(proxy);
+          const subTree = instance.render.call(proxy, proxy);
           const prevSubTree = instance.subTree;
 
           instance.subTree = subTree;
